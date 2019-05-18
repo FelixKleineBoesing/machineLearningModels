@@ -45,15 +45,16 @@ class LinearRegression(Model):
         assert((val_data is not None and val_label is not None) or (val_label is None and val_data is None))
         assert (type(train_data) in [pd.DataFrame, np.ndarray])
         assert (type(train_label) in [pd.DataFrame, np.ndarray, list])
-        assert (type(val_data) in [pd.DataFrame, np.ndarray])
-        assert (type(val_label) in [pd.DataFrame, np.ndarray, list])
+        if val_data is not None:
+            assert (type(val_data) in [pd.DataFrame, np.ndarray])
+            assert (type(val_label) in [pd.DataFrame, np.ndarray, list])
         if isinstance(train_data, pd.DataFrame):
             train_data = np.array(train_data.values)
         if isinstance(train_label, pd.DataFrame):
             train_label = np.array(train_label.values)
         elif isinstance(train_label, list):
             train_label = np.array(train_label)
-        if val_data is not None and val_label is not None:
+        if val_data is not None:
             if isinstance(val_data, pd.DataFrame):
                 val_data = np.array(val_data.values)
             if isinstance(val_label, pd.DataFrame):
@@ -65,14 +66,21 @@ class LinearRegression(Model):
         train_data = np.concatenate([np.ones((train_data.shape[0], 1)), train_data], axis=1)
         if val_data is not None:
             val_data = np.concatenate([np.ones((val_data.shape[0], 1)), val_data], axis=1)
-        self._theta = np.random.rand(train_data.shape[1])
+            if val_label.ndim == 1:
+                val_label = val_label.reshape((val_label.shape[0], 1))
+        self._theta = np.random.rand(train_data.shape[1]).reshape((train_data.shape[1], 1))
+
+        # reshape label if necessary
+        if train_label.ndim == 1:
+            train_label = train_label.reshape((train_label.shape[0], 1))
 
         for i in range(self.iterations):
-            temp_theta = np.ones((self._theta.shape[0], 1))
+            temp_theta = np.zeros((self._theta.shape[0], 1))
             y_hat = train_data @ self._theta
             for j in range(self._theta.shape[0]):
                 temp_theta[j] = self._theta[j] - self.alpha * \
-                                self._error_function.first_order_gradient(y_hat, train_label, train_data[:, j])
+                                self._error_function.first_order_gradient(y_hat, train_label, train_data[:, j].
+                                                                          reshape(train_data.shape[0], 1))
             self._theta = temp_theta
 
             if self.verbose:
