@@ -25,7 +25,7 @@ class LinearRegression(Model):
         self.verbose = verbose
 
         if error_function == "mse":
-            self._error_function = MeanSqaredError()
+            self.error_function = MeanSqaredError()
         else:
             raise NotImplementedError("Other error functions than mse are currently not implemented")
 
@@ -79,17 +79,17 @@ class LinearRegression(Model):
             y_hat = train_data @ self._theta
             for j in range(self._theta.shape[0]):
                 temp_theta[j] = self._theta[j] - self.alpha * \
-                                self._error_function.first_order_gradient(y_hat, train_label, train_data[:, j].
+                                self.error_function.first_order_gradient(y_hat, train_label, train_data[:, j].
                                                                           reshape(train_data.shape[0], 1))
             self._theta = temp_theta
 
             if self.verbose:
                 if val_data is None:
-                    print("Train loss: {}".format(self._error_function.compute(train_data @ self._theta, train_label)))
+                    print("Train loss: {}".format(self.error_function.compute(train_data @ self._theta, train_label)))
                 else:
                     print("Train loss: {},  Val loss: {}".format(
-                        self._error_function.compute(train_data @ self._theta, train_label),
-                        self._error_function.compute(val_data @ self._theta, val_label)))
+                        self.error_function.compute(train_data @ self._theta, train_label),
+                        self.error_function.compute(val_data @ self._theta, val_label)))
 
     def predict(self, test_data: Union[pd.DataFrame, np.ndarray]):
         """
