@@ -1,15 +1,14 @@
 import numpy as np
 import pandas as pd
 from typing import Union
-import abc
 
-from src.CostFunctions import MeanSqaredError
-from src.Model import Model
+from src.cost_functions.LogReg import LogReg
+from src.models.Model import Model
 
 
-class LinearRegression(Model):
+class LogisticRegression(Model):
 
-    def __init__(self, alpha: float = 0.2, iterations: int = 10, error_function: str = "mse", verbose: bool = False):
+    def __init__(self, alpha: float = 0.2, iterations: int = 10, error_function: str = "LogReg", verbose: bool = False):
         """
 
         :param alpha: learning rate
@@ -24,8 +23,8 @@ class LinearRegression(Model):
         self.alpha = alpha
         self.verbose = verbose
 
-        if error_function == "mse":
-            self.error_function = MeanSqaredError()
+        if error_function == "LogReg":
+            self.error_function = LogReg()
         else:
             raise NotImplementedError("Other error functions than mse are currently not implemented")
 
@@ -104,8 +103,3 @@ class LinearRegression(Model):
         test_data = np.concatenate([np.ones((test_data.shape[0], 1)), test_data], axis=1)
 
         return test_data @ self._theta
-
-
-
-
-

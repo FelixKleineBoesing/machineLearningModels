@@ -1,14 +1,14 @@
 import pandas as pd
 import numpy as np
-from unittest import TestCase
+
 from sklearn.datasets import load_boston
 
-from src.LinearRegression import LinearRegression
+from src.models.LinearRegression import LinearRegression
 from src.PreProcessor import Standardizer
 from src.Helpers import get_train_test_val_split
 
 
-class LinearModelTester():
+class RegressionTester():
 
     def test_model_small(self):
         data = pd.read_csv("../data/regression.txt")
@@ -53,5 +53,5 @@ class LinearModelTester():
 
 
 if __name__=="__main__":
-    model = LinearModelTester()
-    model.test_model_boston()
+    regress_tester = RegressionTester()
+    regress_tester.test_model_boston()
