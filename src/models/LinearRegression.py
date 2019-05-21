@@ -103,8 +103,3 @@ class LinearRegression(Model):
         test_data = np.concatenate([np.ones((test_data.shape[0], 1)), test_data], axis=1)
 
         return test_data @ self._theta
-
-
-
-
-
