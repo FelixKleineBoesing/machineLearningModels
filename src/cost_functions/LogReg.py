@@ -2,6 +2,7 @@ import numpy as np
 
 from src.cost_functions.Cost import Cost
 from math import log
+from src.Helpers import sigmoid
 
 
 class LogReg(Cost):
@@ -13,7 +14,7 @@ class LogReg(Cost):
         :param y: y actuals
         :return:
         """
-        return np.sum(- y * log(sigmoid(y_hat)) - (1-y) * log(1-sigmoid(y))) / (len(y))
+        return np.sum(- y * log(y_hat) - (1-y) * log(1-y)) / len(y)
 
     def first_order_gradient(self, y_hat: np.ndarray, y: np.ndarray, var: np.ndarray):
         """
@@ -23,11 +24,7 @@ class LogReg(Cost):
         :param var:
         :return:
         """
-        return np.sum(np.transpose(y_hat - y) * np.transpose(var)) / len(y)
+        return sum(np.transpose(y_hat-y) @ np.transpose(var)) / len(y)
 
     def second_order_gradient(self, y_hat: np.ndarray, y: np.ndarray, var: np.ndarray):
         pass
-
-
-def sigmoid(x):
-    return 1 / (1+np.exp(-x))

@@ -36,3 +36,7 @@ class TrainTestSplit:
         self.test_label = test_label
         self.val_data = val_data
         self.val_label = val_label
+
+
+def sigmoid(z):
+    return 1/ (1 + np.exp(-z))
