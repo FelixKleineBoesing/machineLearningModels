@@ -4,6 +4,7 @@ from typing import Union
 
 from src.cost_functions.LogReg import LogReg
 from src.models.Model import Model
+from src.Helpers import sigmoid
 
 
 class LogisticRegression(Model):
@@ -75,7 +76,7 @@ class LogisticRegression(Model):
 
         for i in range(self.iterations):
             temp_theta = np.zeros((self._theta.shape[0], 1))
-            y_hat = train_data @ self._theta
+            y_hat = sigmoid(train_data @ self._theta)
             for j in range(self._theta.shape[0]):
                 temp_theta[j] = self._theta[j] - self.alpha * \
                                 self.error_function.first_order_gradient(y_hat, train_label, train_data[:, j].
@@ -84,11 +85,11 @@ class LogisticRegression(Model):
 
             if self.verbose:
                 if val_data is None:
-                    print("Train loss: {}".format(self.error_function.compute(train_data @ self._theta, train_label)))
+                    print("Train loss: {}".format(self.error_function.compute(sigmoid(train_data @ self._theta), train_label)))
                 else:
                     print("Train loss: {},  Val loss: {}".format(
-                        self.error_function.compute(train_data @ self._theta, train_label),
-                        self.error_function.compute(val_data @ self._theta, val_label)))
+                        self.error_function.compute(sigmoid(train_data @ self._theta), train_label),
+                        self.error_function.compute(sigmoid(val_data @ self._theta), val_label)))
 
     def predict(self, test_data: Union[pd.DataFrame, np.ndarray]):
         """

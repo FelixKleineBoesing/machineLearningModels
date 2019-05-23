@@ -7,7 +7,7 @@ from src.Helpers import get_train_test_val_split
 
 class ClassificationTester():
 
-    def test_model_boston(self):
+    def test_model_breast_cancer(self):
         data = load_breast_cancer()
         label = data["target"]
         data = data["data"]
@@ -29,4 +29,4 @@ class ClassificationTester():
 
 if __name__=="__main__":
     classific_tester = ClassificationTester()
-    classific_tester.test_model_boston()
+    classific_tester.test_model_breast_cancer()
