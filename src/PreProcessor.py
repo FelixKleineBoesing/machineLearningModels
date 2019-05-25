@@ -46,3 +46,18 @@ class Standardizer(PreProcessor):
 
         data = data.copy()
         return data * self._sd + self._mu
+
+
+class OneHotEncoder(PreProcessor):
+
+    def __init__(self):
+        super().__init__()
+
+    def preprocess_train_data(self, train_data: np.ndarray):
+        pass
+
+    def preprocess_test_data(self, data: np.ndarray):
+        pass
+
+    def revert_preprocessing(self, data: np.ndarray):
+        pass

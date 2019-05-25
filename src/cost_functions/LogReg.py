@@ -24,7 +24,7 @@ class LogReg(Cost):
         :return:
         """
         grad = np.transpose(y_hat-y) @ var
-        return sum(grad[np.isfinite(grad)]) / len(y)
+        return np.sum(grad[np.isfinite(grad)]) / len(y)
 
     def second_order_gradient(self, y_hat: np.ndarray, y: np.ndarray, var: np.ndarray):
         pass

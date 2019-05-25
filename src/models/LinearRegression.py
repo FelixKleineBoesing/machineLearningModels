@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from typing import Union
 
-from src.cost_functions.Cost import MeanSqaredError
+from src.cost_functions.MeanSquaredError import MeanSqaredError
 from src.models.Model import Model
 
 
