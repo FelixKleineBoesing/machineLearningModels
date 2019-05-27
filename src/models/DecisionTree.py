@@ -6,7 +6,9 @@ from src.models.Model import Model
 
 
 class DecisionTree(Model):
-
+    """
+    implement CHAID Trees
+    """
     def __init__(self):
         super().__init__()
 
