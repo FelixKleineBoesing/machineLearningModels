@@ -20,8 +20,6 @@ class BinaryDecisionTreeRegression(Model):
             # TODO add tree structure
             feature, split_value = self._pick_feature(train_data, train_label)
 
-
-
     def _pick_feature(self, train_data: np.ndarray, train_label: np.ndarray):
         n = train_data.shape[0]
         feature = None
