@@ -15,10 +15,14 @@ class BinaryDecisionTreeRegression(Model):
     def train(self, train_data: Union[pd.DataFrame, np.ndarray], train_label: Union[pd.DataFrame, np.ndarray],
               val_data: Union[pd.DataFrame, np.ndarray], val_label: Union[pd.DataFrame, np.ndarray]):
         converged = False
-
+        tree = None
         while not converged:
             # TODO add tree structure
             feature, split_value = self._pick_feature(train_data, train_label)
+            if tree is None:
+                tree = BinaryNode()
+
+
 
     def _pick_feature(self, train_data: np.ndarray, train_label: np.ndarray):
         n = train_data.shape[0]
@@ -39,7 +43,7 @@ class BinaryDecisionTreeRegression(Model):
                 if cost < min_cost:
                     feature, chosen_split_value = i, split_value
 
-        return feature
+        return feature, chosen_split_value
 
     def _find_split(self, data: np.ndarray):
         pass
@@ -62,7 +66,7 @@ class BinaryDecisionTreeRegression(Model):
 
 class BinaryNode:
     def __init__(self):
-        self.left = None
-        self.right = None
+        self.feature = None
+        self.split_value = None
         self.terminal = False
         self.indices = []
