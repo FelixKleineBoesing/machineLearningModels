@@ -14,6 +14,14 @@ class BinaryDecisionTreeRegression(Model):
 
     def train(self, train_data: Union[pd.DataFrame, np.ndarray], train_label: Union[pd.DataFrame, np.ndarray],
               val_data: Union[pd.DataFrame, np.ndarray], val_label: Union[pd.DataFrame, np.ndarray]):
+        """
+        builds a decision tree
+        :param train_data:
+        :param train_label:
+        :param val_data:
+        :param val_label:
+        :return:
+        """
         converged = False
         tree = None
         while not converged:
@@ -60,13 +68,28 @@ class BinaryDecisionTreeRegression(Model):
     def _calculate_cost(self, train_data: np.ndarray, train_label: np.ndarray, feature: int, split_value: float):
         pass
 
-    def predict(self, test_data: Union[pd.DataFrame, np.ndarray]):
+    def predict(self, data: np.ndarray):
+        pass
+
+    def print_tree(self):
         pass
 
 
 class BinaryNode:
-    def __init__(self):
-        self.feature = None
-        self.split_value = None
-        self.terminal = False
-        self.indices = []
+    """
+    Helper class which implements a node structure
+    """
+    def __init__(self, left_indices: list, right_indices: list, split_value: float, variable: int):
+        """
+        initialize an binary node
+        :param left_indices: indices that belong to the left split
+        :param right_indices: indices that belong to the right split
+        :param split_value: value for which the chosen variable will be splitted
+        """
+        self.left_indices = left_indices
+        self.right_indices = right_indices
+        self.split_value = split_value
+        self.variable = variable
+        self.left_terminal = False
+        self.right_terminal = False
+
