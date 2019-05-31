@@ -23,13 +23,14 @@ class BinaryDecisionTreeRegression(Model):
         :return:
         """
         converged = False
-        tree = None
+        feature, split_value = self._pick_feature(train_data, train_label)
+        tree = BinaryNode()
         while not converged:
-            # TODO add tree structure
-            feature, split_value = self._pick_feature(train_data, train_label)
-            if tree is None:
-                tree = BinaryNode()
+            for leafs in tree.leafs():
+                feature, split_value = self._pick_feature()
 
+
+            # TODO add tree structure
 
 
     def _pick_feature(self, train_data: np.ndarray, train_label: np.ndarray):
