@@ -105,10 +105,27 @@ class BinaryNode:
         self.right_node = None
         self.split_value = split_value
         self.variable = variable
+        self.depth = None
 
     def leafs(self):
         """
         return leafs of tree here
         :return: I don´t know, have to think about this
         """
-        pass
+        leafs = []
+        if self.left_node is not None:
+            leafs += self.left_node.leafs()
+        if self.left_node is not None:
+            leafs += self.right_node.leafs()
+        return leafs
+
+    def get_depth(self):
+        if self.left_node is not None:
+            left_depth = self.left_node.get_depth
+        else:
+            left_depth = 0
+        if self.right_node is not None:
+            right_depth = self.right_node.get_depth
+        else:
+            right_depth = 0
+        return max(left_depth, right_depth)
