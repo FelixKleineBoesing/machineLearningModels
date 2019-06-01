@@ -23,15 +23,27 @@ class BinaryDecisionTreeRegression(Model):
         :return:
         """
         converged = False
-        feature, split_value = self._pick_feature(train_data, train_label)
-        tree = BinaryNode()
+        feature, split_value, _ = self._pick_feature(train_data, train_label)
+        left_indices = train_data[:, feature] < split_value
+        right_indices = not left_indices
+        tree = BinaryNode(left_indices, right_indices, split_value, feature)
         while not converged:
-            for leafs in tree.leafs():
-                feature, split_value = self._pick_feature()
-
-
-            # TODO add tree structure
-
+            features = []
+            split_values = []
+            gains = []
+            leafs = []
+            for leaf in tree.leafs():
+                feature, split_value, gain = self._pick_feature()
+                features.append(feature)
+                split_values.append(split_value)
+                gains.append(gain)
+                leafs.append(leaf)
+            max_gain_index = gains.index(max(gains))
+            feature = features[max_gain_index]
+            gain = gains[max_gain_index]
+            split_value = split_values[max_gain_index]
+            leaf = leafs[max_gain_index]
+            # TODO add found split to tree
 
     def _pick_feature(self, train_data: np.ndarray, train_label: np.ndarray):
         n = train_data.shape[0]
@@ -52,7 +64,7 @@ class BinaryDecisionTreeRegression(Model):
                 if cost < min_cost:
                     feature, chosen_split_value = i, split_value
 
-        return feature, chosen_split_value
+        return feature, chosen_split_value, gain
 
     def _find_split(self, data: np.ndarray):
         pass
@@ -89,8 +101,14 @@ class BinaryNode:
         """
         self.left_indices = left_indices
         self.right_indices = right_indices
+        self.left_node = None
+        self.right_node = None
         self.split_value = split_value
         self.variable = variable
-        self.left_terminal = False
-        self.right_terminal = False
 
+    def leafs(self):
+        """
+        return leafs of tree here
+        :return: I don´t know, have to think about this
+        """
+        pass
