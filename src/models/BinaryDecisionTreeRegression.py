@@ -7,7 +7,7 @@ from src.models.Model import Model
 
 class BinaryDecisionTreeRegression(Model):
     """
-    implement CHAID Trees
+    binary decision tree without gradient descent
     """
     def __init__(self):
         super().__init__()
