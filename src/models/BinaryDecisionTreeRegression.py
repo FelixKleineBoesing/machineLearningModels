@@ -24,8 +24,8 @@ class BinaryDecisionTreeRegression(Model):
         """
         converged = False
         feature, split_value, _ = self._pick_feature(train_data, train_label)
-        left_indices = train_data[:, feature] < split_value
-        right_indices = not left_indices
+        left_indices = np.array(train_data[:, feature] < split_value)
+        right_indices = np.invert(left_indices)
         tree = BinaryNode(left_indices, right_indices, split_value, feature)
         while not converged:
             features = []
@@ -56,8 +56,8 @@ class BinaryDecisionTreeRegression(Model):
             rel_index = 0.5
             while not optimal_split:
                 split_value = unique_values[int(rel_index*len(unique_values))]
-                left = train_data[train_data[:,i] < split_value]
-                right = train_data[train_data[:, i] >= split_value]
+                left_indices = np.array(train_data[:, i] < split_value)
+                right_indices = np.invert(left_indices)
                 # TODO evaluate split with cost measure
                 cost = self._calculate_cost(train_data, train_label, feature, split_value)
                 # TODo define stopping criteria for split search
@@ -92,7 +92,7 @@ class BinaryNode:
     """
     Helper class which implements a node structure
     """
-    def __init__(self, left_indices: list, right_indices: list, split_value: float, variable: int):
+    def __init__(self, left_indices: np.ndarray, right_indices: np.ndarray, split_value: float, variable: int):
         """
         initialize an binary node
         :param left_indices: indices that belong to the left split
