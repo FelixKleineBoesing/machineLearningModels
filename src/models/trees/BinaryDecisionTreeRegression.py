@@ -3,13 +3,17 @@ import pandas as pd
 from typing import Union
 
 from src.models.Model import Model
+from src.cost_functions.Cost import Cost
+from src.models.trees.TreeStructure import BinaryNode, Leaf
 
 
 class BinaryDecisionTreeRegression(Model):
     """
     binary decision tree without gradient descent
     """
-    def __init__(self):
+    def __init__(self, cost_function: Cost):
+        assert isinstance(cost_function, Cost), "cost_function must be of type Cost!"
+        self.cost_function = cost_function
         super().__init__()
 
     def train(self, train_data: Union[pd.DataFrame, np.ndarray], train_label: Union[pd.DataFrame, np.ndarray],
@@ -23,7 +27,8 @@ class BinaryDecisionTreeRegression(Model):
         :return:
         """
         converged = False
-        feature, split_value, _ = self._pick_feature(train_data, train_label)
+        feature, split_value, _ = self._pick_feature(train_data, train_label,
+                                                     indices=np.array([True for _ in range(len(train_label))]))
         left_indices = np.array(train_data[:, feature] < split_value)
         right_indices = np.invert(left_indices)
         tree = BinaryNode(left_indices, right_indices, split_value, feature)
@@ -46,6 +51,13 @@ class BinaryDecisionTreeRegression(Model):
             # TODO add found split to tree
 
     def _pick_feature(self, train_data: np.ndarray, train_label: np.ndarray, indices: np.ndarray):
+        """
+        pick the feature and split with has the highest information gain
+        :param train_data:
+        :param train_label:
+        :param indices: boolean array which shows which observations are valide for this leaf
+        :return:
+        """
         feature = None
         min_cost = np.inf
         chosen_split_value = None
@@ -81,67 +93,19 @@ class BinaryDecisionTreeRegression(Model):
         pass
 
     def predict(self, data: np.ndarray):
+        """
+        Return predictions based on the suppliead data
+        :param data:
+        :return:
+        """
+        pass
+
+    def _predict(self):
+        """
+        inner predict which implements the predict structure
+        :return:
+        """
         pass
 
     def print_tree(self):
         pass
-
-
-class BinaryNode:
-    """
-    Helper class which implements a node structure
-    """
-    def __init__(self, left_indices: np.ndarray, right_indices: np.ndarray, split_value: float, variable: int):
-        """
-        initialize an binary node
-        :param left_indices: indices that belong to the left split
-        :param right_indices: indices that belong to the right split
-        :param split_value: value for which the chosen variable will be splitted
-        """
-        self.left_leaf = Leaf(left_indices)
-        self.right_leaf = Leaf(right_indices)
-        self.split_value = split_value
-        self.variable = variable
-
-    def leafs(self):
-        """
-        return leafs of tree here
-        :return: I don´t know, have to think about this
-        """
-        leafs = []
-        if self.left_leaf is not None:
-            if self.left_leaf.terminal:
-                leafs.append(self.left_leaf)
-            else:
-                leafs += self.left_leaf.node.leafs()
-        if self.right_leaf is not None:
-            if self.right_leaf.terminal:
-                leafs.append(self.right_leaf)
-            else:
-                leafs += self.right_leaf.node.leafs()
-        return leafs
-
-    def get_depth(self):
-        pass
-
-
-class Leaf:
-
-    def __init__(self, indices: np.ndarray):
-        self._node = None
-        self._terminal = True
-        self._indices = indices
-        self.prediction = None
-
-    @property
-    def node(self):
-        return self._node
-
-    @node.setter
-    def node(self, node: BinaryNode):
-        self._node = node
-        self._terminal = False
-
-    @property
-    def terminal(self):
-        return self._terminal

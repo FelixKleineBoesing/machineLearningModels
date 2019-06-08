@@ -1,6 +1,6 @@
 from sklearn.datasets import load_breast_cancer
 
-from src.models.LogisticRegression import LogisticRegression
+from src.models.linear.LogisticRegression import LogisticRegression
 from src.PreProcessor import Standardizer
 from src.Helpers import get_train_test_val_split
 

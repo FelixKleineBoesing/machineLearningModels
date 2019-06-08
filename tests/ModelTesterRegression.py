@@ -3,8 +3,8 @@ import numpy as np
 import unittest
 from sklearn.datasets import load_boston
 
-from src.models.LinearRegression import LinearRegression
-from src.models.BinaryDecisionTreeRegression import BinaryDecisionTreeRegression
+from src.models.linear.LinearRegression import LinearRegression
+from src.models.trees.BinaryDecisionTreeRegression import BinaryDecisionTreeRegression
 from src.PreProcessor import Standardizer
 from src.Helpers import get_train_test_val_split
 
@@ -81,13 +81,9 @@ class BinaryDecisionTreeRegressionTester(unittest.TestCase):
 
         train_test_split = get_train_test_val_split(data, label, 0.7, 0.2, 0.1)
 
-        train_data = standardizer.preprocess_train_data(train_test_split.train_data)
-        val_data = standardizer.preprocess_test_data(train_test_split.val_data)
-        test_data = standardizer.preprocess_test_data(train_test_split.test_data)
-
-        model = LinearRegression(alpha=0.05, iterations=100, error_function="mse", verbose=True)
-        model.train(train_data, train_test_split.train_label, val_data, train_test_split.val_label)
-        print(model._theta)
-        predictions = model.predict(test_data)
+        model = BinaryDecisionTreeRegression()
+        model.train(train_test_split.train_data, train_test_split.train_label,
+                    train_test_split.val_data, train_test_split.val_label)
+        predictions = model.predict(train_test_split.test_data)
         print("Test loss: {}".format(model.error_function.compute(predictions.reshape(predictions.shape[0],),
                                                                   train_test_split.test_label)))
