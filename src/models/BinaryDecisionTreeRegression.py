@@ -33,7 +33,7 @@ class BinaryDecisionTreeRegression(Model):
             gains = []
             leafs = []
             for leaf in tree.leafs():
-                feature, split_value, gain = self._pick_feature()
+                feature, split_value, gain = self._pick_feature(train_data, train_label, )
                 features.append(feature)
                 split_values.append(split_value)
                 gains.append(gain)
@@ -45,8 +45,7 @@ class BinaryDecisionTreeRegression(Model):
             leaf = leafs[max_gain_index]
             # TODO add found split to tree
 
-    def _pick_feature(self, train_data: np.ndarray, train_label: np.ndarray):
-        n = train_data.shape[0]
+    def _pick_feature(self, train_data: np.ndarray, train_label: np.ndarray, indices: np.ndarray):
         feature = None
         min_cost = np.inf
         chosen_split_value = None
@@ -99,13 +98,10 @@ class BinaryNode:
         :param right_indices: indices that belong to the right split
         :param split_value: value for which the chosen variable will be splitted
         """
-        self.left_indices = left_indices
-        self.right_indices = right_indices
-        self.left_node = None
-        self.right_node = None
+        self.left_leaf = Leaf(left_indices)
+        self.right_leaf = Leaf(right_indices)
         self.split_value = split_value
         self.variable = variable
-        self.depth = None
 
     def leafs(self):
         """
@@ -113,19 +109,39 @@ class BinaryNode:
         :return: I don´t know, have to think about this
         """
         leafs = []
-        if self.left_node is not None:
-            leafs += self.left_node.leafs()
-        if self.left_node is not None:
-            leafs += self.right_node.leafs()
+        if self.left_leaf is not None:
+            if self.left_leaf.terminal:
+                leafs.append(self.left_leaf)
+            else:
+                leafs += self.left_leaf.node.leafs()
+        if self.right_leaf is not None:
+            if self.right_leaf.terminal:
+                leafs.append(self.right_leaf)
+            else:
+                leafs += self.right_leaf.node.leafs()
         return leafs
 
     def get_depth(self):
-        if self.left_node is not None:
-            left_depth = self.left_node.get_depth
-        else:
-            left_depth = 0
-        if self.right_node is not None:
-            right_depth = self.right_node.get_depth
-        else:
-            right_depth = 0
-        return max(left_depth, right_depth)
+        pass
+
+
+class Leaf:
+
+    def __init__(self, indices: np.ndarray):
+        self._node = None
+        self._terminal = True
+        self._indices = indices
+        self.prediction = None
+
+    @property
+    def node(self):
+        return self._node
+
+    @node.setter
+    def node(self, node: BinaryNode):
+        self._node = node
+        self._terminal = False
+
+    @property
+    def terminal(self):
+        return self._terminal
