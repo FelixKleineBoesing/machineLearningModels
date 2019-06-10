@@ -15,6 +15,7 @@ class BinaryDecisionTreeRegression(Model):
         assert isinstance(cost_function, Cost), "cost_function must be of type Cost!"
         self.cost_function = cost_function
         self.tree = None
+        self.train_label = None
         super().__init__()
 
     def train(self, train_data: Union[pd.DataFrame, np.ndarray], train_label: Union[pd.DataFrame, np.ndarray],
@@ -27,6 +28,7 @@ class BinaryDecisionTreeRegression(Model):
         :param val_label:
         :return:
         """
+        self.train_label = train_label
         converged = False
         feature, split_value, _ = self._pick_feature(train_data, train_label,
                                                      indices=np.array([True for _ in range(len(train_label))]))
@@ -72,8 +74,8 @@ class BinaryDecisionTreeRegression(Model):
                 left_indices = np.array(train_data[:, i] < split_value)
                 right_indices = np.invert(left_indices)
                 # TODO evaluate split with cost measure
-                cost = self._calculate_cost(train_data, train_label, feature, split_value)
-                # TODo define stopping criteria for split search
+                cost = self._calculate_cost(train_data, train_label)
+                # TODO define stopping criteria for split search
                 if cost < min_cost:
                     feature, chosen_split_value = i, split_value
 
@@ -91,7 +93,7 @@ class BinaryDecisionTreeRegression(Model):
     def _prune_tree(self):
         pass
 
-    def _calculate_cost(self, train_data: np.ndarray, train_label: np.ndarray, feature: int, split_value: float):
+    def _calculate_cost(self, train_data: np.ndarray, train_label: np.ndarray):
         pass
 
     def predict(self, data: np.ndarray):
@@ -102,29 +104,36 @@ class BinaryDecisionTreeRegression(Model):
         """
         predictions = np.array([np.NaN for _ in data.shape[0]])
         indices = np.array([True for _ in data.shape[0]])
-        self._inner_predict(self.tree, indices, data, predictions)
+        self._inner_predict(indices, data, predictions, self.tree)
         return predictions
 
-    def _inner_predict(self, node, indices: np.ndarray, data: np.ndarray, predictions: np.ndarray):
+    def _inner_predict(self, indices: np.ndarray, data: np.ndarray, predictions: np.ndarray, node=None):
         """
         inner predict which implements the predict structure
+        :param node:
+        :param indices:
+        :param data:
+        :param predictions:
         :return:
         """
-        left_indices = data[:, node.variable] < node.split_value
-        right_indices = np.invert(left_indices)
-        left_indices = np.logical_and(left_indices, indices)
-        right_indices = np.logical_and(right_indices, indices)
-        if node.left_leaf.terminal:
-            pred_left = node.left_leaf.prediction
-            predictions[left_indices] = pred_left
+        if node is None:
+            predictions = np.mean(self.train_label)
         else:
-            self._inner_predict(node.left_leaf.node, left_indices, data, predictions)
+            left_indices = data[:, node.variable] < node.split_value
+            right_indices = np.invert(left_indices)
+            left_indices = np.logical_and(left_indices, indices)
+            right_indices = np.logical_and(right_indices, indices)
+            if node.left_leaf.terminal:
+                pred_left = node.left_leaf.prediction
+                predictions[left_indices] = pred_left
+            else:
+                self._inner_predict(left_indices, data, predictions, node.left_leaf.node)
 
-        if node.right_leaf.terminal:
-            pred_right = node.right_leaf.prediction
-            predictions[right_indices] = pred_right
-        else:
-            self._inner_predict(node.left_leaf.node, right_indices, data, predictions)
+            if node.right_leaf.terminal:
+                pred_right = node.right_leaf.prediction
+                predictions[right_indices] = pred_right
+            else:
+                self._inner_predict(right_indices, data, predictions, node.left_leaf.node)
 
     def print_tree(self):
         pass
