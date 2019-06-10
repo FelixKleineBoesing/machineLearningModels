@@ -101,24 +101,30 @@ class BinaryDecisionTreeRegression(Model):
         :return:
         """
         predictions = np.array([np.NaN for _ in data.shape[0]])
-        self._inner_predict()
+        indices = np.array([True for _ in data.shape[0]])
+        self._inner_predict(self.tree, indices, data, predictions)
+        return predictions
 
     def _inner_predict(self, node, indices: np.ndarray, data: np.ndarray, predictions: np.ndarray):
         """
         inner predict which implements the predict structure
         :return:
         """
+        left_indices = data[:, node.variable] < node.split_value
+        right_indices = np.invert(left_indices)
+        left_indices = np.logical_and(left_indices, indices)
+        right_indices = np.logical_and(right_indices, indices)
         if node.left_leaf.terminal:
             pred_left = node.left_leaf.prediction
+            predictions[left_indices] = pred_left
         else:
-            pred_left = self._inner_predict(node.left_leaf.node, np.logical_and(indices, data[:, node.variable] <
-                                                                                node.split_value), data, predictions)
+            self._inner_predict(node.left_leaf.node, left_indices, data, predictions)
+
         if node.right_leaf.terminal:
             pred_right = node.right_leaf.prediction
+            predictions[right_indices] = pred_right
         else:
-            pred_right = self._inner_predict(node.left_leaf.node, np.logical_and(indices, data[:, node.variable] <
-                                                                                node.split_value), data, predictions)
-        return
+            self._inner_predict(node.left_leaf.node, right_indices, data, predictions)
 
     def print_tree(self):
         pass
