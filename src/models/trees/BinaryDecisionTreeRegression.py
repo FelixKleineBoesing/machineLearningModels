@@ -14,6 +14,7 @@ class BinaryDecisionTreeRegression(Model):
     def __init__(self, cost_function: Cost):
         assert isinstance(cost_function, Cost), "cost_function must be of type Cost!"
         self.cost_function = cost_function
+        self.tree = None
         super().__init__()
 
     def train(self, train_data: Union[pd.DataFrame, np.ndarray], train_label: Union[pd.DataFrame, np.ndarray],
@@ -31,7 +32,8 @@ class BinaryDecisionTreeRegression(Model):
                                                      indices=np.array([True for _ in range(len(train_label))]))
         left_indices = np.array(train_data[:, feature] < split_value)
         right_indices = np.invert(left_indices)
-        tree = BinaryNode(left_indices, right_indices, split_value, feature)
+        self.tree = tree = BinaryNode(left_indices, right_indices, split_value, feature)
+
         while not converged:
             features = []
             split_values = []
@@ -100,12 +102,22 @@ class BinaryDecisionTreeRegression(Model):
         """
         pass
 
-    def _predict(self):
+    def _inner_predict(self, node, indices: np.ndarray, data: np.ndarray):
         """
         inner predict which implements the predict structure
         :return:
         """
-        pass
+        if node.left_leaf.terminal:
+            pred_left = node.left_leaf.prediction
+        else:
+            pred_left = self._inner_predict(node.left_leaf.node, np.logical_and(indices, data[:, node.variable] <
+                                                                                node.split_value), data)
+        if node.right_leaf.terminal:
+            pred_right = node.right_leaf.prediction
+        else:
+            pred_right = self._inner_predict(node.left_leaf.node, np.logical_and(indices, data[:, node.variable] <
+                                                                                node.split_value), data)
+        return
 
     def print_tree(self):
         pass

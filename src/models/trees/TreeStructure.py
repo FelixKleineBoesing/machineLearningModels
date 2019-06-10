@@ -1,3 +1,4 @@
+import numpy as np
 
 
 class BinaryNode:
@@ -40,11 +41,16 @@ class BinaryNode:
 
 class Leaf:
 
-    def __init__(self, indices: np.ndarray):
+    def __init__(self, indices: np.ndarray, value: float):
+        """
+
+        :param indices: indices of train data
+        :param value: value must be the prediction for this leaf
+        """
         self._node = None
         self._terminal = True
         self._indices = indices
-        self.prediction = None
+        self.prediction = value
 
     @property
     def node(self):
