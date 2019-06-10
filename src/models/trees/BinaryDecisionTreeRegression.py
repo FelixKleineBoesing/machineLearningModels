@@ -100,9 +100,10 @@ class BinaryDecisionTreeRegression(Model):
         :param data:
         :return:
         """
-        pass
+        predictions = np.array([np.NaN for _ in data.shape[0]])
+        self._inner_predict()
 
-    def _inner_predict(self, node, indices: np.ndarray, data: np.ndarray):
+    def _inner_predict(self, node, indices: np.ndarray, data: np.ndarray, predictions: np.ndarray):
         """
         inner predict which implements the predict structure
         :return:
@@ -111,12 +112,12 @@ class BinaryDecisionTreeRegression(Model):
             pred_left = node.left_leaf.prediction
         else:
             pred_left = self._inner_predict(node.left_leaf.node, np.logical_and(indices, data[:, node.variable] <
-                                                                                node.split_value), data)
+                                                                                node.split_value), data, predictions)
         if node.right_leaf.terminal:
             pred_right = node.right_leaf.prediction
         else:
             pred_right = self._inner_predict(node.left_leaf.node, np.logical_and(indices, data[:, node.variable] <
-                                                                                node.split_value), data)
+                                                                                node.split_value), data, predictions)
         return
 
     def print_tree(self):
