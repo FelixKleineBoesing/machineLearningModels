@@ -63,7 +63,7 @@ class BinaryDecisionTreeRegression(Model):
         :return:
         """
         prediction = self.predict(train_data)
-        cost = self.cost_function.compute(prediction, train_label)
+        cost = self.cost_function.compute(prediction[indices], train_label[indices])
         feature = None
         min_cost = np.inf
         chosen_split_value = None
@@ -75,7 +75,9 @@ class BinaryDecisionTreeRegression(Model):
                 split_value = unique_values[int(rel_index*len(unique_values))]
                 left_indices = np.array(train_data[:, i] < split_value)
                 right_indices = np.invert(left_indices)
-                cost = self._calculate_cost(train_data, train_label)
+                #TODO
+                #prediction =
+                #cost_split =
                 if cost < min_cost:
                     feature, chosen_split_value = i, split_value
         gain = cost - min_cost
