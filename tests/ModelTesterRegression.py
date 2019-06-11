@@ -85,5 +85,5 @@ class BinaryDecisionTreeRegressionTester(unittest.TestCase):
         model.train(train_test_split.train_data, train_test_split.train_label,
                     train_test_split.val_data, train_test_split.val_label)
         predictions = model.predict(train_test_split.test_data)
-        print("Test loss: {}".format(model.error_function.compute(predictions.reshape(predictions.shape[0],),
+        print("Test loss: {}".format(model.error_function.  compute(predictions.reshape(predictions.shape[0],),
                                                                   train_test_split.test_label)))
