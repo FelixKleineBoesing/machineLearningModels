@@ -30,8 +30,8 @@ class BinaryDecisionTreeRegression(Model):
         """
         self.train_label = train_label
         converged = False
-        feature, split_value, _ = self._pick_feature(train_data, train_label,
-                                                     indices=np.array([True for _ in range(len(train_label))]))
+        feature, split_value, gain = self._pick_feature(train_data, train_label,
+                                                        indices=np.array([True for _ in range(len(train_label))]))
         left_indices = np.array(train_data[:, feature] < split_value)
         right_indices = np.invert(left_indices)
         self.tree = tree = BinaryNode(left_indices, right_indices, split_value, feature)
@@ -75,12 +75,13 @@ class BinaryDecisionTreeRegression(Model):
                 split_value = unique_values[int(rel_index*len(unique_values))]
                 left_indices = np.array(train_data[:, i] < split_value)
                 right_indices = np.invert(left_indices)
-                #TODO
-                #prediction =
-                #cost_split =
-                if cost < min_cost:
+                predictions = np.zeros(len(indices))
+                predictions[left_indices] = np.mean(train_label[left_indices])
+                predictions[right_indices] = np.mean(train_label[right_indices])
+                cost_split = self.cost_function.compute(predictions, train_label)
+                if cost_split < min_cost:
                     feature, chosen_split_value = i, split_value
-        gain = cost - min_cost
+        gain = cost - cost_split
         return feature, chosen_split_value, gain
 
     def _find_split(self, data: np.ndarray):
