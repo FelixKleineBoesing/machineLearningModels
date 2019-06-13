@@ -34,7 +34,7 @@ class BinaryDecisionTreeRegression(Model):
                                                         indices=np.array([True for _ in range(len(train_label))]))
         left_indices = np.array(train_data[:, feature] < split_value)
         right_indices = np.invert(left_indices)
-        self.tree = tree = BinaryNode(left_indices, right_indices, split_value, feature)
+        self.tree = BinaryNode(left_indices, right_indices, split_value, feature)
 
         while not converged:
             features = []
@@ -67,12 +67,9 @@ class BinaryDecisionTreeRegression(Model):
         feature = None
         min_cost = np.inf
         chosen_split_value = None
-        for i in train_data.shape[1]:
-            optimal_split = False
+        for i in range(train_data.shape[1]):
             unique_values = np.sort(np.unique(train_data[:, i]))
-            rel_index = 0.5
-            while not optimal_split:
-                split_value = unique_values[int(rel_index*len(unique_values))]
+            for split_value in unique_values:
                 left_indices = np.array(train_data[:, i] < split_value)
                 right_indices = np.invert(left_indices)
                 predictions = np.zeros(len(indices))
@@ -81,7 +78,8 @@ class BinaryDecisionTreeRegression(Model):
                 cost_split = self.cost_function.compute(predictions, train_label)
                 if cost_split < min_cost:
                     feature, chosen_split_value = i, split_value
-        gain = cost - cost_split
+                    min_cost = cost_split
+        gain = cost - min_cost
         return feature, chosen_split_value, gain
 
     def _find_split(self, data: np.ndarray):
@@ -102,8 +100,8 @@ class BinaryDecisionTreeRegression(Model):
         :param data:
         :return:
         """
-        predictions = np.array([np.NaN for _ in data.shape[0]])
-        indices = np.array([True for _ in data.shape[0]])
+        predictions = np.array([np.NaN for _ in range(data.shape[0])])
+        indices = np.array([True for _ in range(data.shape[0])])
         self._inner_predict(indices, data, predictions, self.tree)
         return predictions
 
@@ -117,7 +115,7 @@ class BinaryDecisionTreeRegression(Model):
         :return:
         """
         if node is None:
-            predictions = np.mean(self.train_label)
+            predictions[:] = np.mean(self.train_label)
         else:
             left_indices = data[:, node.variable] < node.split_value
             right_indices = np.invert(left_indices)

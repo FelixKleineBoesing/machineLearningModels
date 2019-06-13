@@ -5,6 +5,7 @@ from sklearn.datasets import load_boston
 
 from src.models.linear.LinearRegression import LinearRegression
 from src.models.trees.BinaryDecisionTreeRegression import BinaryDecisionTreeRegression
+from src.cost_functions.MeanSquaredError import MeanSqaredError
 from src.PreProcessor import Standardizer
 from src.Helpers import get_train_test_val_split
 
@@ -67,7 +68,7 @@ class BinaryDecisionTreeRegressionTester(unittest.TestCase):
 
         test_data = data[35:47, 0:2]
 
-        model = BinaryDecisionTreeRegression()
+        model = BinaryDecisionTreeRegression(cost_function=MeanSqaredError())
         model.train(train_data, train_label, val_data, val_label)
 
         predictions = model.predict(test_data)
@@ -77,13 +78,22 @@ class BinaryDecisionTreeRegressionTester(unittest.TestCase):
         data = load_boston()
         label = data["target"]
         data = data["data"]
-        standardizer = Standardizer()
 
         train_test_split = get_train_test_val_split(data, label, 0.7, 0.2, 0.1)
 
-        model = BinaryDecisionTreeRegression()
+        model = BinaryDecisionTreeRegression(cost_function=MeanSqaredError())
         model.train(train_test_split.train_data, train_test_split.train_label,
                     train_test_split.val_data, train_test_split.val_label)
         predictions = model.predict(train_test_split.test_data)
-        print("Test loss: {}".format(model.error_function.  compute(predictions.reshape(predictions.shape[0],),
+        print("Test loss: {}".format(model.cost_function.  compute(predictions.reshape(predictions.shape[0],),
                                                                   train_test_split.test_label)))
+
+
+if __name__=="__main__":
+    linear = LinearRegressionTester()
+    linear.test_model_boston()
+    linear.test_model_small()
+
+    tree = BinaryDecisionTreeRegressionTester()
+    tree.test_model_small()
+    tree.test_model_boston()

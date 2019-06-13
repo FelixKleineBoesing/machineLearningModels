@@ -1,11 +1,12 @@
 from sklearn.datasets import load_breast_cancer
+import unittest
 
 from src.models.linear.LogisticRegression import LogisticRegression
 from src.PreProcessor import Standardizer
 from src.Helpers import get_train_test_val_split
 
 
-class ClassificationTester():
+class ClassificationTester(unittest.TestCase):
 
     def test_model_breast_cancer(self):
         data = load_breast_cancer()
@@ -21,7 +22,6 @@ class ClassificationTester():
 
         model = LogisticRegression(alpha=0.05, iterations=100, error_function="LogReg", verbose=True)
         model.train(train_data, train_test_split.train_label, val_data, train_test_split.val_label)
-        print(model._theta)
         predictions = model.predict(test_data)
         print("Test loss: {}".format(model.error_function.compute(predictions.reshape(predictions.shape[0],),
                                                                   train_test_split.test_label)))

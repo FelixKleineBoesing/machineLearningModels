@@ -3,12 +3,14 @@ import pandas as pd
 from typing import Union
 
 from src.cost_functions.MeanSquaredError import MeanSqaredError
+from src.cost_functions.Cost import Cost
 from src.models.Model import Model
 
 
 class LinearRegression(Model):
 
-    def __init__(self, alpha: float = 0.2, iterations: int = 10, error_function: str = "mse", verbose: bool = False):
+    def __init__(self, alpha: float = 0.2, iterations: int = 10, error_function: Union[str, Cost] = "mse",
+                 verbose: bool = False):
         """
 
         :param alpha: learning rate

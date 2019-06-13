@@ -3,3 +3,5 @@
 src/__pycache__
 src/cost_functions/__pycache__
 src/models/__pycache__
+src/models/linear/__pycache__
+*.pyc
