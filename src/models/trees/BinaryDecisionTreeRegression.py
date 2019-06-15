@@ -11,7 +11,7 @@ class BinaryDecisionTreeRegression(Model):
     """
     binary decision tree without gradient descent
     """
-    def __init__(self, cost_function: Cost):
+    def __init__(self, cost_function: Cost, params: dict = None):
         assert isinstance(cost_function, Cost), "cost_function must be of type Cost!"
         self.cost_function = cost_function
         self.tree = None
@@ -29,29 +29,30 @@ class BinaryDecisionTreeRegression(Model):
         :return:
         """
         self.train_label = train_label
-        converged = False
+        stopped = False
         feature, split_value, gain = self._pick_feature(train_data, train_label,
                                                         indices=np.array([True for _ in range(len(train_label))]))
         left_indices = np.array(train_data[:, feature] < split_value)
         right_indices = np.invert(left_indices)
-        self.tree = BinaryNode(left_indices, right_indices, split_value, feature)
+        self.tree = BinaryNode(left_indices=left_indices, right_indices=right_indices, split_value=split_value,
+                               variable=feature, prediction_left=float(np.mean(train_label[left_indices])),
+                               prediction_right=float(np.mean(train_label[right_indices])), gain=gain)
 
-        while not converged:
+        while not stopped:
             features = []
             split_values = []
             gains = []
             leafs = []
-            for leaf in tree.leafs():
+            for leaf in self.tree.leafs():
                 feature, split_value, gain = self._pick_feature(train_data, train_label, )
-                features.append(feature)
-                split_values.append(split_value)
-                gains.append(gain)
-                leafs.append(leaf)
             max_gain_index = gains.index(max(gains))
             feature = features[max_gain_index]
             gain = gains[max_gain_index]
             split_value = split_values[max_gain_index]
             leaf = leafs[max_gain_index]
+            if self.tree.depth == self.max_depth:
+                stopped = True
+
             # TODO add found split to tree
 
     def _pick_feature(self, train_data: np.ndarray, train_label: np.ndarray, indices: np.ndarray):
