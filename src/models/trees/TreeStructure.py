@@ -31,18 +31,19 @@ class BinaryNode:
         return leafs of tree here
         :return: I don´t know, have to think about this
         """
-        leafs = []
         if self.left_leaf is not None:
             if self.left_leaf.terminal:
-                leafs.append(self.left_leaf)
+                left_leafs = {"l": self.left_leaf}
             else:
-                leafs += self.left_leaf.node.leafs()
+                left_leafs = self.left_leaf.node.leafs()
+                left_leafs = {"l" + key: value for key, value in left_leafs.items()}
         if self.right_leaf is not None:
             if self.right_leaf.terminal:
-                leafs.append(self.right_leaf)
+                right_leafs = {"r": self.left_leaf}
             else:
-                leafs += self.right_leaf.node.leafs()
-        return leafs
+                right_leafs = self.right_leaf.node.leafs()
+                right_leafs = {"r" + key: value for key, value in right_leafs.items()}
+        return left_leafs.update(right_leafs)
 
     def depth(self):
         if not self.left_leaf.terminal:
@@ -54,6 +55,24 @@ class BinaryNode:
         else:
             right_depth = 1
         return max(left_depth, right_depth)
+
+    def get_leaf(self, leaf_order: tuple):
+        """
+        get leaf based on the order of right/left
+        :param leaf_order:
+        :return:
+        """
+        node = self
+        for dir in leaf_order:
+            if dir == "left":
+                leaf = node.left_leaf
+            else:
+                leaf = node.right_leaf
+            if not leaf.terminal:
+                node = leaf.node
+
+        return leaf
+
 
 
 class Leaf:
