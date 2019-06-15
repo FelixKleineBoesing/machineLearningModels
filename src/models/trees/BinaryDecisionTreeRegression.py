@@ -16,6 +16,11 @@ class BinaryDecisionTreeRegression(Model):
         self.cost_function = cost_function
         self.tree = None
         self.train_label = None
+
+        if "max_depth" not in params:
+            params["max_depth"] = 8
+        self.params = params
+
         super().__init__()
 
     def train(self, train_data: Union[pd.DataFrame, np.ndarray], train_label: Union[pd.DataFrame, np.ndarray],
@@ -39,18 +44,14 @@ class BinaryDecisionTreeRegression(Model):
                                prediction_right=float(np.mean(train_label[right_indices])), gain=gain)
 
         while not stopped:
-            features = []
-            split_values = []
-            gains = []
-            leafs = []
             for leaf in self.tree.leafs():
-                feature, split_value, gain = self._pick_feature(train_data, train_label, )
+                feature, split_value, gain = self._pick_feature(train_data, train_label, leaf.indices)
             max_gain_index = gains.index(max(gains))
             feature = features[max_gain_index]
             gain = gains[max_gain_index]
             split_value = split_values[max_gain_index]
             leaf = leafs[max_gain_index]
-            if self.tree.depth == self.max_depth:
+            if self.tree.depth() >= self.params["max_depth"]:
                 stopped = True
 
             # TODO add found split to tree

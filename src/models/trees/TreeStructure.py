@@ -68,7 +68,7 @@ class Leaf:
         assert isinstance(prediction, float)
         self._node = None
         self._terminal = True
-        self._indices = indices
+        self.indices = indices
         self.prediction = prediction
 
     @property
