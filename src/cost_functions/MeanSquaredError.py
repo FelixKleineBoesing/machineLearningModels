@@ -12,7 +12,7 @@ class MeanSqaredError(Cost):
         :param y: y actuals
         :return:
         """
-        return np.sum((y_hat - y) ** 2) / (2 * len(y))
+        return np.sum(np.power(y_hat - y, 2)) / (2 * len(y))
 
     def first_order_gradient(self, y_hat: np.ndarray, y: np.ndarray, var: np.ndarray):
         """

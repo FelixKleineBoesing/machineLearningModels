@@ -68,7 +68,7 @@ class BinaryDecisionTreeRegressionTester(unittest.TestCase):
 
         test_data = data[35:47, 0:2]
         test_label = data[35:47, 2]
-        params = {"max_depth": 2}
+        params = {"max_depth": 3, "save_path_tree_struct": "../src/graphs/structure.json"}
         model = BinaryDecisionTreeRegression(cost_function=MeanSqaredError(), params=params)
         model.train(train_data, train_label, val_data, val_label)
 
@@ -82,8 +82,9 @@ class BinaryDecisionTreeRegressionTester(unittest.TestCase):
         data = data["data"]
 
         train_test_split = get_train_test_val_split(data, label, 0.7, 0.2, 0.1)
+        params = {"max_depth": 3, "save_path_tree_struct": "../src/graphs/structure.json"}
 
-        model = BinaryDecisionTreeRegression(cost_function=MeanSqaredError())
+        model = BinaryDecisionTreeRegression(cost_function=MeanSqaredError(), params=params)
         model.train(train_test_split.train_data, train_test_split.train_label,
                     train_test_split.val_data, train_test_split.val_label)
         predictions = model.predict(train_test_split.test_data)
@@ -99,3 +100,5 @@ if __name__=="__main__":
     tree = BinaryDecisionTreeRegressionTester()
     tree.test_model_small()
     tree.test_model_boston()
+
+

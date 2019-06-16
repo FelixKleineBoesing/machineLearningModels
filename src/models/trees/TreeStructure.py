@@ -68,15 +68,27 @@ class BinaryNode:
         """
         node = self
         for index, dir in enumerate(leaf_order):
-            if dir == "left":
+            if dir == "l":
                 leaf = node.left_leaf
             else:
                 leaf = node.right_leaf
-            if index < len(leaf_order) - 2:
-                node = leaf.node
+            node = leaf.node
 
         return leaf
 
+    def get_tree_structure(self) -> dict:
+        leafs = {"name": "{0} < {1}".format(self.variable, self.split_value), "children": []}
+        if self.left_leaf.terminal:
+            leafs["children"].append({"name":"Prediction: {0},    Anzahl Obs: {1}".format(self.left_leaf.prediction,
+                                                                             sum(self.left_leaf.indices))})
+        else:
+            leafs["children"].append(self.left_leaf.node.get_tree_structure())
+        if self.right_leaf.terminal:
+            leafs["children"].append({"name":"Prediction: {0},    Anzahl Obs: {1}".format(self.right_leaf.prediction,
+                                                                             sum(self.right_leaf.indices))})
+        else:
+            leafs["children"].append(self.right_leaf.node.get_tree_structure())
+        return leafs
 
 
 class Leaf:

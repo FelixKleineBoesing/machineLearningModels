@@ -24,7 +24,9 @@
 
 </style>
 <body>
-<script src="//d3js.org/d3.v3.min.js"></script>
+
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
 <script>
 
 var margin = {top: 20, right: 120, bottom: 20, left: 180},
@@ -47,7 +49,7 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.json("/ajschumacher/raw/65eda1df2b0dd2cf616f/structure.json", function(error, flare) {
+d3.json("./structure.json", function(error, flare) {
   if (error) throw error;
 
   root = flare;
