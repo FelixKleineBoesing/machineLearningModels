@@ -16,6 +16,8 @@ class BinaryDecisionTreeRegression(Model):
         self.cost_function = cost_function
         self.tree = None
         self.train_label = None
+        if params is None:
+            params = {}
 
         if "max_depth" not in params:
             params["max_depth"] = 8
@@ -35,26 +37,44 @@ class BinaryDecisionTreeRegression(Model):
         """
         self.train_label = train_label
         stopped = False
+        max_depth = self.params["max_depth"]
         feature, split_value, gain = self._pick_feature(train_data, train_label,
                                                         indices=np.array([True for _ in range(len(train_label))]))
         left_indices = np.array(train_data[:, feature] < split_value)
         right_indices = np.invert(left_indices)
         self.tree = BinaryNode(left_indices=left_indices, right_indices=right_indices, split_value=split_value,
-                               variable=feature, prediction_left=float(np.mean(train_label[left_indices])),
-                               prediction_right=float(np.mean(train_label[right_indices])), gain=gain)
+                               variable=feature, prediction_left=np.mean(train_label[left_indices]),
+                               prediction_right=np.mean(train_label[right_indices]), gain=gain)
 
+        leafs = LeafStorer()
         while not stopped:
-            for leaf in self.tree.leafs():
+            all_leafs = self.tree.leafs()
+            max_depth_reached = True
+            for key, leaf in all_leafs.items():
+                if len(key) >= max_depth:
+                    continue
+                if key in leafs:
+                    max_depth_reached = False
+                    continue
+                max_depth_reached = False
                 feature, split_value, gain = self._pick_feature(train_data, train_label, leaf.indices)
-            max_gain_index = gains.index(max(gains))
-            feature = features[max_gain_index]
-            gain = gains[max_gain_index]
-            split_value = split_values[max_gain_index]
-            leaf = leafs[max_gain_index]
-            if self.tree.depth() >= self.params["max_depth"]:
-                stopped = True
+                leafs[key] = {"feature": feature, "split_value": split_value,
+                              "gain": gain}
 
-            # TODO add found split to tree
+            id_, leaf_split = leafs.pop_max_gain_leaf()
+
+            feature = leaf_split["feature"]
+            split_value = leaf_split["split_value"]
+            gain = leaf_split["gain"]
+            leaf = self.tree.get_leaf(id_)
+            bool_ = train_data[:, feature] < split_value
+            left_indices = np.logical_and(leaf.indices, bool_)
+            right_indices = np.logical_and(leaf.indices, np.invert(bool_))
+            leaf.node = BinaryNode(left_indices=left_indices, right_indices=right_indices, split_value=split_value,
+                                   variable=feature, prediction_left=float(np.mean(train_label[left_indices])),
+                                   prediction_right=float(np.mean(train_label[right_indices])), gain=gain)
+            if max_depth_reached:
+                stopped = True
 
     def _pick_feature(self, train_data: np.ndarray, train_label: np.ndarray, indices: np.ndarray):
         """
@@ -83,18 +103,6 @@ class BinaryDecisionTreeRegression(Model):
                     min_cost = cost_split
         gain = cost - min_cost
         return feature, chosen_split_value, gain
-
-    def _find_split(self, data: np.ndarray):
-        pass
-
-    def _detect_convergence(self):
-        pass
-
-    def _detect_overfitting(self):
-        pass
-
-    def _prune_tree(self):
-        pass
 
     def predict(self, data: np.ndarray):
         """
@@ -137,3 +145,51 @@ class BinaryDecisionTreeRegression(Model):
 
     def print_tree(self):
         pass
+
+
+class LeafStorer:
+    """
+    Used in building the tree. We store already calculated splits here for later use.
+    We store only best split per leaf.
+    """
+
+    def __init__(self):
+        self._leafs = {}
+        self.max_gain = np.inf * -1
+        self._gains = []
+
+    def __setitem__(self, key, value):
+        self.max_gain = max(self.max_gain, value["gain"])
+        self._gains.append(value["gain"])
+        self._leafs[key] = value
+
+    def __getitem__(self, item):
+        return self._leafs[item]
+
+    def __len__(self):
+        return len(self._leafs)
+
+    def __contains__(self, key):
+        return key in self._leafs
+
+    def get_max_gain_leaf(self):
+        if len(self._leafs) > 0:
+            gain = -1 * np.Inf
+            id = None
+            for key, value in self._leafs.items():
+                if value["gain"] > gain:
+                    id = key
+            return id, self._leafs[id]
+        else:
+            raise IndexError("No data present in LeafStorer, can´t retrieve max gain split")
+
+    def delete_item(self, key):
+        del self._leafs[key]
+        del self._gains[self._gains.index(max(self._gains))]
+        if len(self._gains) > 0:
+            self.max_gain = max(self._gains)
+
+    def pop_max_gain_leaf(self):
+        id, leaf = self.get_max_gain_leaf()
+        self.delete_item(id)
+        return id, leaf

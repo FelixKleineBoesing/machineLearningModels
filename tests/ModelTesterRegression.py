@@ -27,12 +27,13 @@ class LinearRegressionTester(unittest.TestCase):
 
         test_data = data[35:47, 0:2]
         test_data = standardizer.preprocess_test_data(test_data)
+        test_label = data[35:47, 2]
 
-        model = LinearRegression(alpha=0.4, iterations=100, error_function="mse", verbose=True)
+        model = LinearRegression(alpha=0.4, iterations=100, cost_function="mse", verbose=False)
         model.train(train_data, train_label, val_data, val_label)
-        print(model._theta)
         predictions = model.predict(test_data)
-        print(predictions)
+        print("Test loss: {}".format(model.cost_function.compute(predictions.reshape(predictions.shape[0],),
+                                                                  test_label)))
 
     def test_model_boston(self):
         data = load_boston()
@@ -46,11 +47,10 @@ class LinearRegressionTester(unittest.TestCase):
         val_data = standardizer.preprocess_test_data(train_test_split.val_data)
         test_data = standardizer.preprocess_test_data(train_test_split.test_data)
 
-        model = LinearRegression(alpha=0.05, iterations=100, error_function="mse", verbose=True)
+        model = LinearRegression(alpha=0.05, iterations=100, cost_function="mse", verbose=False)
         model.train(train_data, train_test_split.train_label, val_data, train_test_split.val_label)
-        print(model._theta)
         predictions = model.predict(test_data)
-        print("Test loss: {}".format(model.error_function.compute(predictions.reshape(predictions.shape[0],),
+        print("Test loss: {}".format(model.cost_function.compute(predictions.reshape(predictions.shape[0],),
                                                                   train_test_split.test_label)))
 
 
@@ -67,12 +67,14 @@ class BinaryDecisionTreeRegressionTester(unittest.TestCase):
         val_label = data[26:35, 2]
 
         test_data = data[35:47, 0:2]
-
-        model = BinaryDecisionTreeRegression(cost_function=MeanSqaredError())
+        test_label = data[35:47, 2]
+        params = {"max_depth": 2}
+        model = BinaryDecisionTreeRegression(cost_function=MeanSqaredError(), params=params)
         model.train(train_data, train_label, val_data, val_label)
 
         predictions = model.predict(test_data)
-        print(predictions)
+        print("Test loss: {}".format(model.cost_function.  compute(predictions.reshape(predictions.shape[0],),
+                                                                  test_label)))
 
     def test_model_boston(self):
         data = load_boston()

@@ -1,12 +1,15 @@
 import numpy as np
+from typing import Union
 
 
 class BinaryNode:
     """
     Helper class which implements a node structure
     """
-    def __init__(self, left_indices: np.ndarray, right_indices: np.ndarray, split_value: float, variable: int,
-                 prediction_left: float, prediction_right: float, gain: float = None ):
+    def __init__(self, left_indices: np.ndarray, right_indices: np.ndarray,
+                 split_value: Union[float, np.float64, np.int64],
+                 variable: int, prediction_left: Union[float, np.float64], prediction_right: Union[float, np.float64],
+                 gain: Union[float, np.float64] = None):
         """
         initialize an binary node
         :param left_indices: indices that belong to the left split
@@ -15,11 +18,11 @@ class BinaryNode:
         """
         assert isinstance(left_indices, np.ndarray)
         assert isinstance(right_indices, np.ndarray)
-        assert isinstance(split_value, float)
         assert isinstance(variable, int)
-        assert isinstance(prediction_left, float)
-        assert isinstance(prediction_right, float)
-        assert isinstance(gain, float)
+        assert type(split_value) in [float, np.float, np.float64, np.int64]
+        assert type(prediction_left) in [float, np.float, np.float64, np.int64]
+        assert type(prediction_right) in [float, np.float, np.float64, np.int64]
+        assert type(gain) in [float, np.float, np.float64]
         self.left_leaf = Leaf(left_indices, prediction_left)
         self.right_leaf = Leaf(right_indices, prediction_right)
         self.split_value = split_value
@@ -43,7 +46,8 @@ class BinaryNode:
             else:
                 right_leafs = self.right_leaf.node.leafs()
                 right_leafs = {"r" + key: value for key, value in right_leafs.items()}
-        return left_leafs.update(right_leafs)
+        left_leafs.update(right_leafs)
+        return left_leafs
 
     def depth(self):
         if not self.left_leaf.terminal:
@@ -63,12 +67,12 @@ class BinaryNode:
         :return:
         """
         node = self
-        for dir in leaf_order:
+        for index, dir in enumerate(leaf_order):
             if dir == "left":
                 leaf = node.left_leaf
             else:
                 leaf = node.right_leaf
-            if not leaf.terminal:
+            if index < len(leaf_order) - 2:
                 node = leaf.node
 
         return leaf

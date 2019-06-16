@@ -9,14 +9,14 @@ from src.models.Model import Model
 
 class LinearRegression(Model):
 
-    def __init__(self, alpha: float = 0.2, iterations: int = 10, error_function: Union[str, Cost] = "mse",
+    def __init__(self, alpha: float = 0.2, iterations: int = 10, cost_function: Union[str, Cost] = "mse",
                  verbose: bool = False):
         """
 
         :param alpha: learning rate
         :param iterations:  number or iterations
         """
-        assert (type(error_function) == str)
+        assert (type(cost_function) == str)
         assert (type(iterations) == int)
         assert (type(alpha) == float)
         assert (iterations > 1)
@@ -25,8 +25,8 @@ class LinearRegression(Model):
         self.alpha = alpha
         self.verbose = verbose
 
-        if error_function == "mse":
-            self.error_function = MeanSqaredError()
+        if cost_function == "mse":
+            self.cost_function = MeanSqaredError()
         else:
             raise NotImplementedError("Other error functions than mse are currently not implemented")
 
@@ -80,17 +80,17 @@ class LinearRegression(Model):
             y_hat = train_data @ self._theta
             for j in range(self._theta.shape[0]):
                 temp_theta[j] = self._theta[j] - self.alpha * \
-                                self.error_function.first_order_gradient(y_hat, train_label, train_data[:, j].
+                                self.cost_function.first_order_gradient(y_hat, train_label, train_data[:, j].
                                                                           reshape(train_data.shape[0], 1))
             self._theta = temp_theta
 
             if self.verbose:
                 if val_data is None:
-                    print("Train loss: {}".format(self.error_function.compute(train_data @ self._theta, train_label)))
+                    print("Train loss: {}".format(self.cost_function.compute(train_data @ self._theta, train_label)))
                 else:
                     print("Train loss: {},  Val loss: {}".format(
-                        self.error_function.compute(train_data @ self._theta, train_label),
-                        self.error_function.compute(val_data @ self._theta, val_label)))
+                        self.cost_function.compute(train_data @ self._theta, train_label),
+                        self.cost_function.compute(val_data @ self._theta, val_label)))
 
     def predict(self, test_data: Union[pd.DataFrame, np.ndarray]):
         """
