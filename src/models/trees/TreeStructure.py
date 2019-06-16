@@ -42,7 +42,7 @@ class BinaryNode:
                 left_leafs = {"l" + key: value for key, value in left_leafs.items()}
         if self.right_leaf is not None:
             if self.right_leaf.terminal:
-                right_leafs = {"r": self.left_leaf}
+                right_leafs = {"r": self.right_leaf}
             else:
                 right_leafs = self.right_leaf.node.leafs()
                 right_leafs = {"r" + key: value for key, value in right_leafs.items()}
