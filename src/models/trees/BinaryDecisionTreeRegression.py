@@ -2,23 +2,28 @@ import numpy as np
 import pandas as pd
 from typing import Union
 import json
+import scipy
 
 from src.models.Model import Model
 from src.cost_functions.Cost import Cost
 from src.models.trees.TreeStructure import BinaryNode, Leaf
 
 
-class BinaryDecisionTreeRegression(Model):
+class BinaryDecisionTree(Model):
     """
     binary decision tree without gradient descent
     """
-    def __init__(self, cost_function: Cost, params: dict = None):
+    def __init__(self, cost_function: Cost, params: dict = None, objetive: str = "regression"):
         assert isinstance(cost_function, Cost), "cost_function must be of type Cost!"
+        assert isinstance(objective, str)
+        assert objective in ["classification", "regression"]
         self.cost_function = cost_function
         self.tree = None
         self.train_label = None
         if params is None:
             params = {}
+        else:
+            assert isinstance(params, dict)
 
         if "max_depth" not in params:
             params["max_depth"] = 8
@@ -27,7 +32,9 @@ class BinaryDecisionTreeRegression(Model):
         if "num_rounds" not in params:
             params["num_rounds"] = 20
         self.params = params
-
+        self.objective = objective
+        self.agg_function = np.mean if objective == "regression" else scipy.stats.mode
+        
         super().__init__()
 
     def train(self, train_data: Union[pd.DataFrame, np.ndarray], train_label: Union[pd.DataFrame, np.ndarray],
@@ -48,8 +55,8 @@ class BinaryDecisionTreeRegression(Model):
         left_indices = np.array(train_data[:, feature] < split_value)
         right_indices = np.invert(left_indices)
         self.tree = BinaryNode(left_indices=left_indices, right_indices=right_indices, split_value=split_value,
-                               variable=feature, prediction_left=np.mean(train_label[left_indices]),
-                               prediction_right=np.mean(train_label[right_indices]), gain=gain)
+                               variable=feature, prediction_left=self.agg_function(train_label[left_indices]),
+                               prediction_right=self.agg_function(train_label[right_indices]), gain=gain)
         leafs = LeafStorer()
         rounds = 0
         while not stopped and rounds < self.params["num_rounds"]:
@@ -79,8 +86,8 @@ class BinaryDecisionTreeRegression(Model):
             left_indices = np.logical_and(leaf.indices, bool_)
             right_indices = np.logical_and(leaf.indices, np.invert(bool_))
             leaf.node = BinaryNode(left_indices=left_indices, right_indices=right_indices, split_value=split_value,
-                                   variable=feature, prediction_left=float(np.mean(train_label[left_indices])),
-                                   prediction_right=float(np.mean(train_label[right_indices])), gain=gain)
+                                   variable=feature, prediction_left=float(self.agg_function(train_label[left_indices])),
+                                   prediction_right=float(self.agg_function(train_label[right_indices])), gain=gain)
             if self.params["save_path_tree_struct"] is not None:
                 with open(self.params["save_path_tree_struct"], "w") as f:
                     json.dump(self.tree.get_tree_structure(), f)
@@ -110,8 +117,8 @@ class BinaryDecisionTreeRegression(Model):
                 if np.sum(left_indices) == 0 or np.sum(right_indices) == 0:
                     continue
                 predictions = np.zeros(len(indices))
-                predictions[left_indices] = np.mean(train_label[left_indices])
-                predictions[right_indices] = np.mean(train_label[right_indices])
+                predictions[left_indices] = self.agg_function(train_label[left_indices])
+                predictions[right_indices] = self.agg_function(train_label[right_indices])
                 cost_split = self.cost_function.compute(predictions[indices], train_label[indices])
                 if cost_split < min_cost:
                     feature, chosen_split_value = i, split_value
