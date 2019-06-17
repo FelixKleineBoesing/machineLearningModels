@@ -12,6 +12,9 @@ class LogReg(Cost):
         :param y: y actuals
         :return:
         """
+        y_hat = y_hat.copy()
+        y_hat[y_hat == 1.0] = 0.99999
+        y_hat[y_hat == 0.0] = 0.00001
         cost = - y * np.log(y_hat) - (1-y) * np.log(1-y_hat)
         return np.nansum(cost[np.isfinite(cost)]) / len(y)
 

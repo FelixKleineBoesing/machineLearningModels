@@ -2,18 +2,24 @@ import numpy as np
 import pandas as pd
 from typing import Union
 import json
-import scipy
+from scipy.stats import mode
 
 from src.models.Model import Model
 from src.cost_functions.Cost import Cost
-from src.models.trees.TreeStructure import BinaryNode, Leaf
+from src.models.trees.TreeStructure import BinaryNode
 
 
 class BinaryDecisionTree(Model):
     """
     binary decision tree without gradient descent
     """
-    def __init__(self, cost_function: Cost, params: dict = None, objetive: str = "regression"):
+    def __init__(self, cost_function: Cost, objective: str, params: dict = None):
+        """
+
+        :param cost_function:
+        :param objective: must be "regression" or "classification"
+        :param params:
+        """
         assert isinstance(cost_function, Cost), "cost_function must be of type Cost!"
         assert isinstance(objective, str)
         assert objective in ["classification", "regression"]
@@ -33,7 +39,7 @@ class BinaryDecisionTree(Model):
             params["num_rounds"] = 20
         self.params = params
         self.objective = objective
-        self.agg_function = np.mean if objective == "regression" else scipy.stats.mode
+        self.agg_function = np.mean if objective == "regression" else np.mean
         
         super().__init__()
 
@@ -211,3 +217,4 @@ class LeafStorer:
         id, leaf = self.get_max_gain_leaf()
         self.delete_item(id)
         return id, leaf
+

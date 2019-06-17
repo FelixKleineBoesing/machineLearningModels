@@ -4,7 +4,7 @@ import unittest
 from sklearn.datasets import load_boston
 
 from src.models.linear.LinearRegression import LinearRegression
-from src.models.trees.BinaryDecisionTreeRegression import BinaryDecisionTreeRegression
+from src.models.trees.BinaryDecisionTree import BinaryDecisionTree
 from src.cost_functions.MeanSquaredError import MeanSqaredError
 from src.PreProcessor import Standardizer
 from src.Helpers import get_train_test_val_split
@@ -69,7 +69,7 @@ class BinaryDecisionTreeRegressionTester(unittest.TestCase):
         test_data = data[35:47, 0:2]
         test_label = data[35:47, 2]
         params = {"max_depth": 3, "save_path_tree_struct": "../src/graphs/structure.json"}
-        model = BinaryDecisionTreeRegression(cost_function=MeanSqaredError(), params=params)
+        model = BinaryDecisionTree(cost_function=MeanSqaredError(), params=params, objective="regression")
         model.train(train_data, train_label, val_data, val_label)
 
         predictions = model.predict(test_data)
@@ -84,7 +84,7 @@ class BinaryDecisionTreeRegressionTester(unittest.TestCase):
         train_test_split = get_train_test_val_split(data, label, 0.7, 0.2, 0.1)
         params = {"max_depth": 3, "save_path_tree_struct": "../src/graphs/structure.json"}
 
-        model = BinaryDecisionTreeRegression(cost_function=MeanSqaredError(), params=params)
+        model = BinaryDecisionTree(cost_function=MeanSqaredError(), params=params, objective="regression")
         model.train(train_test_split.train_data, train_test_split.train_label,
                     train_test_split.val_data, train_test_split.val_label)
         predictions = model.predict(train_test_split.test_data)
