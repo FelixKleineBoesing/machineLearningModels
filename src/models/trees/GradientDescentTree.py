@@ -11,7 +11,7 @@ from src.models.trees.TreeStructure import LeafStorer
 
 class BinaryDecisionTree(Model):
     """
-    binary decision tree without gradient descent
+    binary decision tree and with gradient descent
     """
     def __init__(self, cost_function: Cost, objective: str, params: dict = None):
         """
@@ -20,6 +20,7 @@ class BinaryDecisionTree(Model):
         :param objective: must be "regression" or "classification"
         :param params:
         """
+        # TODO switch to gradient descent optimization
         assert isinstance(cost_function, Cost), "cost_function must be of type Cost!"
         assert isinstance(objective, str)
         assert objective in ["classification", "regression"]

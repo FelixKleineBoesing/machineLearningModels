@@ -73,6 +73,7 @@ def return_activation_functions(activ_funcs: list):
 
     return funcs
 
+
 def _check_validity(func: types.FunctionType):
     test_data1 = np.array([1, 2, 3])
     test_data2 = np.array([[1, 2, 3]])

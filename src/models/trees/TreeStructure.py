@@ -119,3 +119,52 @@ class Leaf:
     @property
     def terminal(self):
         return self._terminal
+
+
+class LeafStorer:
+    """
+    Used in building the tree. We store already calculated splits here for later use.
+    We store only best split per leaf.
+    """
+
+    def __init__(self):
+        self._leafs = {}
+        self.max_gain = np.inf * -1
+        self._gains = []
+
+    def __setitem__(self, key, value):
+        self.max_gain = max(self.max_gain, value["gain"])
+        self._gains.append(value["gain"])
+        self._leafs[key] = value
+
+    def __getitem__(self, item):
+        return self._leafs[item]
+
+    def __len__(self):
+        return len(self._leafs)
+
+    def __contains__(self, key):
+        return key in self._leafs
+
+    def get_max_gain_leaf(self):
+        if len(self._leafs) > 0:
+            gain = -1 * np.Inf
+            id_ = None
+            for key, value in self._leafs.items():
+                if value["gain"] > gain:
+                    id_ = key
+            return id_, self._leafs[id_]
+        else:
+            raise IndexError("No data present in LeafStorer, can´t retrieve max gain split")
+
+    def delete_item(self, key):
+        del self._leafs[key]
+        del self._gains[self._gains.index(max(self._gains))]
+        if len(self._gains) > 0:
+            self.max_gain = max(self._gains)
+
+    def pop_max_gain_leaf(self):
+        id, leaf = self.get_max_gain_leaf()
+        self.delete_item(id)
+        return id, leaf
+
