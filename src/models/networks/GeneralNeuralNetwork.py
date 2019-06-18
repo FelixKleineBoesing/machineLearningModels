@@ -1,20 +1,17 @@
 import numpy as np
 from typing import Union
 import pandas as pd
+import abc
 from src.models.Model import Model
 
 
 class NeuralNetwork(Model):
 
-    def __init__(self, hidden_layers: int = 1, neurons: list = None, activation_functions: list = None,
-                 params: dict = None):
-        assert hidden_layers > 0, "Hidden layers must be larger than one"
-        assert hidden_layers == len(neurons), "Number of hidden layers must be equal to length neurons list"
-        assert hidden_layers == len(activation_functions), "Number of activation functions must be equal to length " \
-                                                           "neurons list"
+    def __init__(self, layers: list, params: dict = None):
+        assert len(layers) > 0, "NUmber oof layers must be larger than one"
+        self.layers = layers
         self.params = params
         super().__init__()
-
 
     def train(self, train_data: Union[pd.DataFrame, np.ndarray], train_label: Union[pd.DataFrame, np.ndarray],
               val_data: Union[pd.DataFrame, np.ndarray], val_label: Union[pd.DataFrame, np.ndarray]):
@@ -24,10 +21,7 @@ class NeuralNetwork(Model):
         pass
 
 
-
-
-
-class Layer:
+class Layer(abc.ABC):
 
     def __init__(self, units: int, activation_function: str = "ReLu"):
         assert isinstance(units, int)
@@ -40,4 +34,3 @@ class Layer:
         self.units = units
         self.activation_function = activation_function
 
-        pass
