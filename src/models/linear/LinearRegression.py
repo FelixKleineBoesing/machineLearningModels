@@ -80,8 +80,8 @@ class LinearRegression(Model):
             y_hat = train_data @ self._theta
             for j in range(self._theta.shape[0]):
                 temp_theta[j] = self._theta[j] - self.alpha * \
-                                self.cost_function.first_order_gradient(y_hat, train_label, train_data[:, j].
-                                                                          reshape(train_data.shape[0], 1))
+                                self.cost_function.first_order_gradient(y_hat, train_label, train_data[:, j]. \
+                                                                        reshape(train_data.shape[0], 1))
             self._theta = temp_theta
 
             if self.verbose:

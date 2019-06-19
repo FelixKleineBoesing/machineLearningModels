@@ -41,14 +41,18 @@ class NeuralNetwork(Model):
     def train(self, train_data: Union[pd.DataFrame, np.ndarray], train_label: Union[pd.DataFrame, np.ndarray],
               val_data: Union[pd.DataFrame, np.ndarray], val_label: Union[pd.DataFrame, np.ndarray]):
         y_hat = self._forward_pass(train_data)
-        self.cost_function.compute(y_hat, train_label)
-        
+        costs = self.cost_function.compute(y_hat, train_label)
+
 
     def _forward_pass(self, data: np.ndarray):
         arr = data
         for key, layer in self.network.items():
             arr = layer["activ"](arr @ layer["weights"] + layer["bias"])
         return arr
+
+    def _backward_pass(self, costs: np.ndarray):
+        pass
+
 
     def predict(self, test_data: Union[pd.DataFrame, np.ndarray]):
         pass
