@@ -5,7 +5,7 @@ from src.models.linear.LogisticRegression import LogisticRegression
 from src.models.trees.BinaryDecisionTree import BinaryDecisionTree
 from src.PreProcessor import Standardizer
 from src.Helpers import get_train_test_val_split
-from src.cost_functions.LogReg import LogReg
+from src.cost_functions.trees.LogReg import LogReg as LRTrees
 
 
 class LogisticRegressionTester(unittest.TestCase):
@@ -38,7 +38,7 @@ class BinaryDecisionTreeClassificationTester(unittest.TestCase):
 
         train_test_split = get_train_test_val_split(data, label, 0.7, 0.2, 0.1)
 
-        model = BinaryDecisionTree(cost_function=LogReg(), params={"max_depth": 2}, objective="classification")
+        model = BinaryDecisionTree(cost_function=LRTrees(), params={"max_depth": 2}, objective="classification")
         model.train(train_test_split.train_data, train_test_split.train_label, train_test_split.val_data,
                     train_test_split.val_label)
         predictions = model.predict(train_test_split.test_data)

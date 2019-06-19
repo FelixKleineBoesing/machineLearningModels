@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 from typing import Union
 
-from src.cost_functions.MeanSquaredError import MeanSqaredError
 from src.cost_functions.Cost import Cost
 from src.models.Model import Model
+from src.cost_functions.Helper import reshape_outputs
 
 
 class LinearRegression(Model):
@@ -26,7 +26,7 @@ class LinearRegression(Model):
         self.verbose = verbose
 
         if cost_function == "mse":
-            self.cost_function = MeanSqaredError()
+            self.cost_function = MeanSqaredErrorLinear()
         else:
             raise NotImplementedError("Other error functions than mse are currently not implemented")
 
@@ -105,3 +105,30 @@ class LinearRegression(Model):
         test_data = np.concatenate([np.ones((test_data.shape[0], 1)), test_data], axis=1)
 
         return test_data @ self._theta
+
+
+class MeanSqaredErrorLinear(Cost):
+
+    def compute(self, y_hat: np.ndarray, y: np.ndarray):
+        """
+        computes loss
+        :param y_hat: y predictions
+        :param y: y actuals
+        :return:
+        """
+        y_hat, y = reshape_outputs(y_hat, y)
+        return np.sum(np.power(y_hat - y, 2)) / (2 * len(y))
+
+    def first_order_gradient(self, y_hat: np.ndarray, y: np.ndarray, var: np.ndarray):
+        """
+        return first order gradient for the specified var vector
+        :param y_hat:
+        :param y:
+        :param var:
+        :return:
+        """
+        y_hat, y = reshape_outputs(y_hat, y)
+        return np.sum(np.transpose(y_hat - y) * np.transpose(var)) / len(y)
+
+    def second_order_gradient(self, y_hat: np.ndarray, y: np.ndarray, var: np.ndarray):
+        pass

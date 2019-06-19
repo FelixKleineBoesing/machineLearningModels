@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from typing import Union
 
-from src.cost_functions.LogReg import LogReg
+from src.cost_functions.linear.LogReg import LogReg
 from src.models.Model import Model
 from src.Helpers import sigmoid
 

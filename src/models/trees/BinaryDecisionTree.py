@@ -40,7 +40,7 @@ class BinaryDecisionTree(Model):
         self.params = params
         self.objective = objective
         self.agg_function = np.mean if objective == "regression" else np.mean
-        
+
         super().__init__()
 
     def train(self, train_data: Union[pd.DataFrame, np.ndarray], train_label: Union[pd.DataFrame, np.ndarray],

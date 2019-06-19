@@ -15,7 +15,7 @@ def return_activation_functions(activ_funcs: list):
     funcs = []
     for func in activ_funcs:
         if isinstance(func, str):
-            funcs.append(default_funcs[func])
+            funcs.append(default_funcs[func]())
         else:
             _check_validity(func)
             funcs.append(func)

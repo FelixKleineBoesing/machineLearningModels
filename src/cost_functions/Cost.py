@@ -9,9 +9,9 @@ class Cost(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def first_order_gradient(self, y_hat: np.ndarray, y: np.ndarray, var: np.ndarray):
+    def first_order_gradient(self, y_hat: np.ndarray, y: np.ndarray):
         pass
 
     @abc.abstractmethod
-    def second_order_gradient(self, y_hat: np.ndarray, y: np.ndarray, var: np.ndarray):
+    def second_order_gradient(self, y_hat: np.ndarray, y: np.ndarray):
         pass

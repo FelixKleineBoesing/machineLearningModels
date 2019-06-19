@@ -1,50 +1,85 @@
 import numpy as np
+import abc
 
 
-def sigmoid(x: np.ndarray):
-    """
-    sigmoid
-    :param x: input data
-    :return:
-    """
-    return 1 / (1 + np.exp(-x))
+class ActivationFunction(abc.ABC):
+
+    def __init__(self):
+        pass
+
+    @abc.abstractmethod
+    def compute(self, x: np.ndarray):
+        pass
+
+    @abc.abstractmethod
+    def first_order_gradient(self, x: np.ndarray):
+        pass
+
+    @abc.abstractmethod
+    def second_order_gradient(self, x: np.ndarray):
+        pass
 
 
-def tanh(x: np.ndarray):
-    """
-    tanh
-    :param x:
-    :return:
-    """
-    return 1 - (2 / (np.exp(2*x) - 1))
+class sigmoid(ActivationFunction):
+
+    def compute(self, x: np.ndarray):
+        return 1 / (1 + np.exp(-x))
+
+    def first_order_gradient(self, x: np.ndarray):
+        return self.compute(x) * (1 - self.compute(x))
+
+    def second_order_gradient(self, x: np.ndarray):
+        pass
 
 
-def relu(x: np.ndarray):
-    """
-    simply forwards positive values and eliminates negative values
-    :param x:
-    :return:
-    """
-    x[x < 0] = 0
-    return x
+class tanh(ActivationFunction):
+
+    def compute(self, x: np.ndarray):
+        return 1 - (2 / (np.exp(2 * x) - 1))
+
+    def first_order_gradient(self, x: np.ndarray):
+        return 1 - self.compute(x) ** 2
+
+    def second_order_gradient(self, x: np.ndarray):
+        pass
 
 
-def linear(x: np.ndarray):
-    """
-    simply forwards input value
-    :param x:
-    :return:
-    """
-    return x
+class relu(ActivationFunction):
+
+    def compute(self, x: np.ndarray):
+        x[x < 0] = 0
+        return x
+
+    def first_order_gradient(self, x: np.ndarray):
+        x[x < 0] = 0
+        x[x > 0] = 1
+        return x
+
+    def second_order_gradient(self, x: np.ndarray):
+        pass
 
 
-def softmax(x: np.ndarray):
-    """
-    all values some to one
-    :param x:
-    :return:
-    """
-    assert(len(x.shape) == 2), "x must be two dimensional"
-    exp_x = np.exp(x)
-    return exp_x / np.sum(exp_x)
+class linear(ActivationFunction):
 
+    def compute(self, x: np.ndarray):
+        return x
+
+    def first_order_gradient(self, x: np.ndarray):
+        return 1
+
+    def second_order_gradient(self, x: np.ndarray):
+        pass
+
+
+class softmax(ActivationFunction):
+
+    def compute(self, x: np.ndarray):
+        assert (len(x.shape) == 2), "x must be two dimensional"
+        exp_x = np.exp(x)
+        return exp_x / np.sum(exp_x)
+
+    def first_order_gradient(self, x: np.ndarray):
+        return self.compute(x) * (1 - self.compute(x))
+
+    def second_order_gradient(self, x: np.ndarray):
+        pass
