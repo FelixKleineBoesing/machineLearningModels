@@ -57,25 +57,26 @@ class NeuralNetwork(Model):
     def _forward_pass(self, data: np.ndarray):
         arr = data
         for key, layer in self.network.items():
-            arr = layer["activ"].compute(arr @ layer["weights"] + layer["bias"])
+            activation = arr @ layer["weights"] + layer["bias"]
+            arr = layer["activ"].compute(activation.copy())
+            layer["activation"] = activation
         return arr
 
     def _backward_pass(self, y_hat: np.ndarray, y: np.ndarray):
-        cost_gradient = self.cost_function.first_order_gradient(y_hat, y)
+        cost_gradient = self.cost_function.first_order_gradient(y_hat, y).T
         for key in reversed(list(self.network.keys())):
             layer = self.network[key]
-            activ_gradient = layer["activ"].first_order_gradient(cost_gradient)
+            activ_gradient = cost_gradient * layer["activ"].first_order_gradient(layer["activation"])
             if len(np.array(activ_gradient).shape) == 0:
                 activ_gradient = np.array([[activ_gradient], ])
             if len(activ_gradient.shape) == 1:
                 activ_gradient = activ_gradient.reshape(activ_gradient.shape[0], 1)
             cost_gradient = (layer["weights"] @ activ_gradient)
-            layer["weight"] = layer["weights"] - self.learning_rate * cost_gradient
+            layer["weights"] = layer["weights"] - self.learning_rate * cost_gradient
             self.network[key] = layer
 
-
     def predict(self, test_data: Union[pd.DataFrame, np.ndarray]):
-        pass
+        return self._forward_pass(test_data)
 
     def _init_variables(self):
         variables = {}

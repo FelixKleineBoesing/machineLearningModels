@@ -110,7 +110,8 @@ class NeuralNetworkRegressionTester(unittest.TestCase):
         test_label = data[35:47, 2]
         params = {"iterations": 10}
         model = NeuralNetwork(cost_function=MSENetwork(), input_shape=(2,), params=params,
-                              neurons=[10,10,1], activation_functions=["relu", "relu", "linear"])
+                              neurons=[10,10,1], activation_functions=["relu", "relu", "linear"], epochs=100,
+                              learning_rate=0.1)
         model.train(train_data, train_label, val_data, val_label)
 
         predictions = model.predict(test_data)
@@ -125,7 +126,8 @@ class NeuralNetworkRegressionTester(unittest.TestCase):
         train_test_split = get_train_test_val_split(data, label, 0.7, 0.2, 0.1)
         params = {"max_depth": 3, "save_path_tree_struct": "../src/graphs/structure.json"}
 
-        model = NeuralNetwork(cost_function=MSENetwork(), params=params, objective="regression")
+        model = NeuralNetwork(cost_function=MSENetwork(), params=params, input_shape=(13,), epochs=100,
+                              learning_rate=0.1)
         model.train(train_test_split.train_data, train_test_split.train_label,
                     train_test_split.val_data, train_test_split.val_label)
         predictions = model.predict(train_test_split.test_data)

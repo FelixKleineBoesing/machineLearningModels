@@ -14,7 +14,7 @@ class MeanSqaredError(Cost):
         :return:
         """
         y_hat, y = reshape_outputs(y_hat, y)
-        return np.sum(np.power(y_hat - y, 2)) / (2 * len(y))
+        return np.power(y_hat - y, 2) / 2
 
     def first_order_gradient(self, y_hat: np.ndarray, y: np.ndarray):
         """
@@ -25,7 +25,7 @@ class MeanSqaredError(Cost):
         :return:
         """
         y_hat, y = reshape_outputs(y_hat, y)
-        return np.sum(np.transpose(y_hat - y)) / len(y)
+        return np.transpose(y_hat - y)
 
     def second_order_gradient(self, y_hat: np.ndarray, y: np.ndarray):
         pass

@@ -18,7 +18,7 @@ class LogReg(Cost):
         y_hat[y_hat == 1.0] = 0.99999
         y_hat[y_hat == 0.0] = 0.00001
         cost = - y * np.log(y_hat) - (1-y) * np.log(1-y_hat)
-        return np.nansum(cost[np.isfinite(cost)]) / len(y)
+        return cost
 
     def first_order_gradient(self, y_hat: np.ndarray, y: np.ndarray):
         """
@@ -28,9 +28,11 @@ class LogReg(Cost):
         :param var:
         :return:
         """
+        y_hat[y_hat == 1.0] = 0.99999
+        y_hat[y_hat == 0.0] = 0.00001
         y_hat, y = reshape_outputs(y_hat, y)
         grad = np.transpose(y_hat-y)
-        return np.sum(grad[np.isfinite(grad)]) / len(y)
+        return grad
 
     def second_order_gradient(self, y_hat: np.ndarray, y: np.ndarray):
         pass
