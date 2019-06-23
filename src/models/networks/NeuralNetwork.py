@@ -15,12 +15,13 @@ class NeuralNetwork(Model):
     """
 
     def __init__(self, cost_function: Cost, input_shape: Tuple, neurons: list = [4, 8, 1], params: dict = None,
-                 activation_functions: list = ["relu", "relu", "linear"], epochs: int = 10, learning_rate: float = 0.1):
-        assert isinstance(cost_function, Cost)
+                 activation_functions: list = ["relu", "relu", "linear"], epochs: int = 10, learning_rate: float = 0.1,
+                 verbose: bool = False):
         assert isinstance(neurons, list)
         assert isinstance(activation_functions, list)
         assert isinstance(input_shape, Tuple)
         assert isinstance(params, dict)
+        assert isinstance(verbose, bool)
         assert len(neurons) > 0, "Number of layers must be larger than zero"
         assert len(neurons) == len(activation_functions), "Number of activation functions must be equal to length " \
                                                           "neurons list"
@@ -38,6 +39,7 @@ class NeuralNetwork(Model):
         self.activation_functions = return_activation_functions(activation_functions)
         self.neurons = neurons
         self.cost_function = cost_function
+        self.verbose = verbose
         self.network = self._init_variables()
         super().__init__()
 
@@ -53,10 +55,11 @@ class NeuralNetwork(Model):
                 val_costs = self.cost_function.compute(y_hat_val, val_label, aggregation=True)
             costs = self.cost_function.compute(y_hat, train_label, aggregation=True)
             self._backward_pass(y_hat, train_label, train_data)
-            if val_data is not None:
-                print("Epoch {}, train loss: {}, val_loss: {}".format(epoch, costs, val_costs))
-            else:
-                print("Epoch {}, train loss: {}".format(epoch, costs))
+            if self.verbose:
+                if val_data is not None:
+                    print("Epoch {}, train loss: {}, val_loss: {}".format(epoch, costs, val_costs))
+                else:
+                    print("Epoch {}, train loss: {}".format(epoch, costs))
 
             epoch += 1
 
@@ -74,7 +77,7 @@ class NeuralNetwork(Model):
         for index, key in enumerate(reversed(list(self.network.keys()))):
             layer = self.network[key]
             if index > 0:
-                weight_updates[past_layer_key] = layer["activation"].T @ activ_gradient
+                weight_updates[past_layer_key] = self._clipp_gradients(layer["activation"].T @ activ_gradient)
             if index == 0:
                 cost_gradient = self.cost_function.first_order_gradient(y_hat, y).T
             else:
@@ -107,6 +110,11 @@ class NeuralNetwork(Model):
             }
             last_neuron = neuron
         return variables
+
+    def _clipp_gradients(self, arr):
+        arr[arr > 100] = 100
+        arr[arr < -100] = -100
+        return arr
 
 
 def _reshape_activ_gradient(grad: np.ndarray):
