@@ -6,7 +6,7 @@ from src.cost_functions.Helper import reshape_outputs
 
 class LogReg(Cost):
 
-    def compute(self, y_hat: np.ndarray, y: np.ndarray):
+    def compute(self, y_hat: np.ndarray, y: np.ndarray, aggregation: bool = False):
         """
         computes loss
         :param y_hat: y predictions
@@ -18,6 +18,9 @@ class LogReg(Cost):
         y_hat[y_hat == 1.0] = 0.99999
         y_hat[y_hat == 0.0] = 0.00001
         cost = - y * np.log(y_hat) - (1-y) * np.log(1-y_hat)
+        if aggregation:
+            cost = np.nansum(cost[np.isfinite(cost)]) / len(y)
+
         return cost
 
     def first_order_gradient(self, y_hat: np.ndarray, y: np.ndarray):

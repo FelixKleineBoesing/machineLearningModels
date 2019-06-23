@@ -6,7 +6,7 @@ from src.cost_functions.Helper import reshape_outputs
 
 class MeanSqaredError(Cost):
 
-    def compute(self, y_hat: np.ndarray, y: np.ndarray):
+    def compute(self, y_hat: np.ndarray, y: np.ndarray, aggregation: bool = False):
         """
         computes loss
         :param y_hat: y predictions
@@ -14,7 +14,8 @@ class MeanSqaredError(Cost):
         :return:
         """
         y_hat, y = reshape_outputs(y_hat, y)
-        return np.power(y_hat - y, 2) / 2
+        cost = np.power(y_hat - y, 2) / 2
+        return np.sum(cost) / len(y)
 
     def first_order_gradient(self, y_hat: np.ndarray, y: np.ndarray):
         """

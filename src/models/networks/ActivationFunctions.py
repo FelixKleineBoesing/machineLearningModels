@@ -65,7 +65,7 @@ class linear(ActivationFunction):
         return x
 
     def first_order_gradient(self, x: np.ndarray):
-        return 1
+        return np.ones(x.shape)
 
     def second_order_gradient(self, x: np.ndarray):
         pass

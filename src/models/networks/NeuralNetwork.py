@@ -1,6 +1,4 @@
 import numpy as np
-import types
-import logging
 import pandas as pd
 from typing import Union, Tuple
 
@@ -16,8 +14,8 @@ class NeuralNetwork(Model):
     Simple neural network implementation with x dense layers, n units and some possile activationsfunctions
     """
 
-    def __init__(self, cost_function: Cost, input_shape: Tuple, neurons: list = [10, 1], params: dict = None,
-                 activation_functions: list = ["relu", "linear"], epochs: int = 10, learning_rate: float = 0.1):
+    def __init__(self, cost_function: Cost, input_shape: Tuple, neurons: list = [4, 8, 1], params: dict = None,
+                 activation_functions: list = ["relu", "relu", "linear"], epochs: int = 10, learning_rate: float = 0.1):
         assert isinstance(cost_function, Cost)
         assert isinstance(neurons, list)
         assert isinstance(activation_functions, list)
@@ -45,13 +43,21 @@ class NeuralNetwork(Model):
 
     def train(self, train_data: Union[pd.DataFrame, np.ndarray], train_label: Union[pd.DataFrame, np.ndarray],
               val_data: Union[pd.DataFrame, np.ndarray], val_label: Union[pd.DataFrame, np.ndarray]):
+        assert (val_label is not None and val_label is not None) or (val_label is None and val_data is None)
         stopped = False
         epoch = 1
         while not stopped and epoch < self.epochs:
             y_hat = self._forward_pass(train_data)
-            costs = self.cost_function.compute(y_hat, train_label)
-            self._backward_pass(y_hat, train_label)
-            print("Epoch {}, train loss: {}".format(epoch, costs))
+            if val_data is not None:
+                y_hat_val = self.predict(val_data)
+                val_costs = self.cost_function.compute(y_hat_val, val_label, aggregation=True)
+            costs = self.cost_function.compute(y_hat, train_label, aggregation=True)
+            self._backward_pass(y_hat, train_label, train_data)
+            if val_data is not None:
+                print("Epoch {}, train loss: {}, val_loss: {}".format(epoch, costs, val_costs))
+            else:
+                print("Epoch {}, train loss: {}".format(epoch, costs))
+
             epoch += 1
 
     def _forward_pass(self, data: np.ndarray):
@@ -62,21 +68,33 @@ class NeuralNetwork(Model):
             layer["activation"] = activation
         return arr
 
-    def _backward_pass(self, y_hat: np.ndarray, y: np.ndarray):
-        cost_gradient = self.cost_function.first_order_gradient(y_hat, y).T
-        for key in reversed(list(self.network.keys())):
+    def _backward_pass(self, y_hat: np.ndarray, y: np.ndarray, X: np.ndarray):
+        weight_updates = {}
+        past_layer = None
+        for index, key in enumerate(reversed(list(self.network.keys()))):
             layer = self.network[key]
+            if index > 0:
+                weight_updates[past_layer_key] = layer["activation"].T @ activ_gradient
+            if index == 0:
+                cost_gradient = self.cost_function.first_order_gradient(y_hat, y).T
+            else:
+                cost_gradient = (activ_gradient @ past_layer["weights"].T)
             activ_gradient = cost_gradient * layer["activ"].first_order_gradient(layer["activation"])
-            if len(np.array(activ_gradient).shape) == 0:
-                activ_gradient = np.array([[activ_gradient], ])
-            if len(activ_gradient.shape) == 1:
-                activ_gradient = activ_gradient.reshape(activ_gradient.shape[0], 1)
-            cost_gradient = (layer["weights"] @ activ_gradient)
-            layer["weights"] = layer["weights"] - self.learning_rate * cost_gradient
-            self.network[key] = layer
+            activ_gradient = _reshape_activ_gradient(activ_gradient)
+            past_layer = layer
+            past_layer_key = key
+
+        weight_updates[key] = X.T @ activ_gradient
+
+        for key, wu in weight_updates.items():
+            self.network[key]["weights"] = self.network[key]["weights"] - self.learning_rate * wu
 
     def predict(self, test_data: Union[pd.DataFrame, np.ndarray]):
-        return self._forward_pass(test_data)
+        arr = test_data
+        for key, layer in self.network.items():
+            activation = arr @ layer["weights"] + layer["bias"]
+            arr = layer["activ"].compute(activation)
+        return arr
 
     def _init_variables(self):
         variables = {}
@@ -89,3 +107,11 @@ class NeuralNetwork(Model):
             }
             last_neuron = neuron
         return variables
+
+
+def _reshape_activ_gradient(grad: np.ndarray):
+    if len(np.array(grad).shape) == 0:
+        grad = np.array([[grad], ])
+    if len(grad.shape) == 1:
+        grad = grad.reshape(grad.shape[0], 1)
+    return grad
